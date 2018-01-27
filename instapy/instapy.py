@@ -64,7 +64,7 @@ class InstaPy:
                  bypass_suspicious_attempt=False):
 
         if nogui:
-            self.display = Display(visible=0, size=(800, 600))
+            self.display = Display(visible=0, size=(1280, 720))
             self.display.start()
 
         self.browser = None

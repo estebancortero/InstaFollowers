@@ -1,5 +1,8 @@
 *.db
 *.exe
+logs/
+followers.csv
+Start.bat
 
 # pylint file
 googlecl-pylint.rc.txt

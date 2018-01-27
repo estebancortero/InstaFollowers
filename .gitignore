@@ -3,6 +3,7 @@
 logs/
 followers.csv
 Start.bat
+command.txt
 
 # pylint file
 googlecl-pylint.rc.txt

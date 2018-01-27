@@ -10,27 +10,26 @@ def parse_args():
 
 
 args = parse_args()
-while True:
-	session = InstaPy(username=args.username, password=args.password, headless_browser=True)
-	try:
-		session.login()
+session = InstaPy(username=args.username, password=args.password, headless_browser=True)
+try:
+    session.login()
 
-		# settings
-		session.set_lower_follower_count(limit = 50)
-		session.set_upper_follower_count(limit = 5000)
-		session.set_do_comment(enabled=True, percentage=50)
-		session.set_comments(['Nice!', 'Love it :)', 'Perfect!', '@{} This is amazing!', 'Great picture! @{}'], media='Photo')
-		session.set_do_follow(enabled=True, percentage=50, times=2)
-		session.set_user_interact(amount=2, randomize=3, percentage=100, media="Photo")			# settings for interaction with users from tags or feed
-		session.set_dont_unfollow_active_users(enabled=True, posts=10)
+    # settings
+    session.set_lower_follower_count(limit = 50)
+    session.set_upper_follower_count(limit = 5000)
+    session.set_do_comment(enabled=True, percentage=50)
+    session.set_comments(['Nice!', 'Love it :)', 'Perfect!', '@{} This is amazing!', 'Great picture! @{}'], media='Photo')
+    session.set_do_follow(enabled=True, percentage=50, times=2)
+    session.set_user_interact(amount=2, randomize=3, percentage=100, media="Photo")			# settings for interaction with users from tags or feed
+    session.set_dont_unfollow_active_users(enabled=True, posts=10)
 
-		# actions
-		session.like_by_tags(['travel', 'goodlife', 'love'], amount=20, media='Photo', interact=True)	# interact=True => use interaction settings above
-		session.like_by_feed(amount=30, randomize=True, unfollow=True, interact=True)	# unfollow inappropriate posts
-		session.like_by_locations(["24960421/porto-portugal/"], amount=10, media="Photo")
-		session.follow_by_tags(['travel', 'food', 'vegan'], amount=10, media="Photo")
+    # actions
+    session.like_by_tags(['travel', 'goodlife', 'love'], amount=20, media='Photo', interact=True)	# interact=True => use interaction settings above
+    session.like_by_feed(amount=30, randomize=True, unfollow=True, interact=True)	# unfollow inappropriate posts
+    session.like_by_locations(["24960421/porto-portugal/"], amount=10, media="Photo")
+    session.follow_by_tags(['travel', 'food', 'vegan'], amount=10, media="Photo")
 
-		session.unfollow_users(amount=35, onlyInstapyFollowed=True, onlyNotFollowMe=True)
+    session.unfollow_users(amount=35, onlyInstapyFollowed=True, onlyNotFollowMe=True)
 
-	finally:
-		session.end()
+finally:
+    session.end()

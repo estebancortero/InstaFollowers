@@ -10,13 +10,13 @@ from .util import add_user_to_blacklist
 from .print_log_writer import log_followed_pool
 from selenium.common.exceptions import NoSuchElementException
 import random
-import os
 
 
-def set_automated_followed_pool(username, logger, logfolder):
+def set_automated_followed_pool(username, logger):
     automatedFollowedPool = []
     try:
-        with open('{0}{1}_followedPool.csv'.format(logfolder, username), 'r+') as followedPoolFile:
+        with open('./logs/{}_followedPool.csv'.format(username), 'r+') as \
+                followedPoolFile:
             reader = csv.reader(followedPoolFile)
             automatedFollowedPool = [row[0] for row in reader]
 
@@ -40,8 +40,7 @@ def unfollow(browser,
              automatedFollowedPool,
              sleep_delay,
              onlyNotFollowMe,
-             logger,
-             logfolder):
+             logger):
 
     """unfollows the given amount of users"""
     unfollowNum = 0
@@ -101,7 +100,8 @@ def unfollow(browser,
                         follow_button.click()
                         update_activity('unfollows')
 
-                        delete_line_from_file('{0}{1}_followedPool.csv'.format(logfolder, username), person +
+                        delete_line_from_file('./logs/' + username +
+                                              '_followedPool.csv', person +
                                               ",\n", logger)
 
                         logger.info(
@@ -115,7 +115,8 @@ def unfollow(browser,
                             hasSlept = False
                         continue
                     else:
-                        delete_line_from_file('{0}{1}_followedPool.csv'.format(logfolder, username),
+                        delete_line_from_file('./logs/' + username +
+                                              '_followedPool.csv',
                                               person + ",\n", logger)
 
                         logger.warning(
@@ -326,7 +327,7 @@ def unfollow(browser,
     return unfollowNum
 
 
-def follow_user(browser, follow_restrict, login, user_name, blacklist, logger, logfolder):
+def follow_user(browser, follow_restrict, login, user_name, blacklist, logger):
     """Follows the user of the currently opened image"""
 
     try:
@@ -349,12 +350,12 @@ def follow_user(browser, follow_restrict, login, user_name, blacklist, logger, l
             update_activity('follows')
 
         logger.info('--> Now following')
-        log_followed_pool(login, user_name, logger, logfolder)
+        log_followed_pool(login, user_name, logger)
         follow_restrict[user_name] = follow_restrict.get(user_name, 0) + 1
         if blacklist['enabled'] is True:
             action = 'followed'
             add_user_to_blacklist(
-                browser, user_name, blacklist['campaign'], action, logger, logfolder
+                browser, user_name, blacklist['campaign'], action, logger
             )
         sleep(3)
         return 1
@@ -382,8 +383,7 @@ def follow_given_user(browser,
                       acc_to_follow,
                       follow_restrict,
                       blacklist,
-                      logger,
-                      logfolder):
+                      logger):
     """Follows a given user."""
     browser.get('https://www.instagram.com/' + acc_to_follow)
     # update server calls
@@ -402,7 +402,7 @@ def follow_given_user(browser,
         if blacklist['enabled'] is True:
             action = 'followed'
             add_user_to_blacklist(
-                browser, acc_to_follow, blacklist['campaign'], action, logger, logfolder
+                browser, acc_to_follow, blacklist['campaign'], action, logger
             )
 
         sleep(3)
@@ -424,7 +424,6 @@ def follow_through_dialog(browser,
                           delay,
                           blacklist,
                           logger,
-                          logfolder,
                           follow_times,
                           callbacks=[]):
     sleep(2)
@@ -514,7 +513,7 @@ def follow_through_dialog(browser,
                 person_followed.append(person)
 
                 button.send_keys("\n")
-                log_followed_pool(login, person, logger, logfolder)
+                log_followed_pool(login, person, logger)
                 update_activity('follows')
 
                 follow_restrict[person] = follow_restrict.get(person, 0) + 1
@@ -525,7 +524,7 @@ def follow_through_dialog(browser,
                 if blacklist['enabled'] is True:
                     action = 'followed'
                     add_user_to_blacklist(
-                        browser, person, blacklist['campaign'], action, logger, logfolder
+                        browser, person, blacklist['campaign'], action, logger
                     )
 
                 for callback in callbacks:
@@ -553,13 +552,7 @@ def follow_through_dialog(browser,
     return person_followed
 
 
-def get_given_user_followers(browser,
-                             user_name,
-                             amount,
-                             dont_include,
-                             login,
-                             randomize,
-                             logger):
+def get_given_user_followers(browser, user_name, amount, dont_include, login, randomize, logger, get_all=False):
 
     browser.get('https://www.instagram.com/' + user_name)
     # update server calls
@@ -592,8 +585,8 @@ def get_given_user_followers(browser,
 
     # get follow buttons. This approch will find the follow buttons and
     # ignore the Unfollow/Requested buttons.
-    follow_buttons = dialog.find_elements_by_xpath(
-        "//div/div/span/button[text()='Follow']")
+    follow_buttons = dialog.find_elements_by_xpath("//div/div/span/button[text()='Follow']")
+    unfollow_buttons = dialog.find_elements_by_xpath("//div/div/span/button[text()='Following']")
     person_list = []
 
     if amount >= len(follow_buttons):
@@ -602,13 +595,17 @@ def get_given_user_followers(browser,
                        .format(user_name))
 
     finalBtnPerson = []
-    if randomize:
-        sample = random.sample(range(0, len(follow_buttons)), amount)
-
-        for num in sample:
-            finalBtnPerson.append(follow_buttons[num])
+    # if get_all=True return all followers (not limited by amount or follow status)
+    if get_all:
+        finalBtnPerson = follow_buttons + unfollow_buttons
     else:
-        finalBtnPerson = follow_buttons[0:amount]
+        if randomize:
+            sample = random.sample(range(0, len(follow_buttons)), amount)
+
+            for num in sample:
+                finalBtnPerson.append(follow_buttons[num])
+        else:
+            finalBtnPerson = follow_buttons[0:amount]
     for person in finalBtnPerson:
 
         if person and hasattr(person, 'text') and person.text:
@@ -694,7 +691,6 @@ def follow_given_user_followers(browser,
                                 delay,
                                 blacklist,
                                 logger,
-                                logfolder,
                                 follow_times):
 
     browser.get('https://www.instagram.com/' + user_name)
@@ -729,7 +725,6 @@ def follow_given_user_followers(browser,
                                            delay,
                                            blacklist,
                                            logger,
-                                           logfolder,
                                            follow_times,
                                            callbacks=[])
 
@@ -746,7 +741,6 @@ def follow_given_user_following(browser,
                                 delay,
                                 blacklist,
                                 logger,
-                                logfolder,
                                 follow_times):
 
     browser.get('https://www.instagram.com/' + user_name)
@@ -781,29 +775,18 @@ def follow_given_user_following(browser,
                                            delay,
                                            blacklist,
                                            logger,
-                                           logfolder,
                                            follow_times)
 
     return personFollowed
 
 
-def dump_follow_restriction(followRes, logfolder):
+def dump_follow_restriction(followRes):
     """Dumps the given dictionary to a file using the json format"""
-    filename = '{}followRestriction.json'.format(logfolder)
-
-    with open(filename, 'w') as followResFile:
+    with open('./logs/followRestriction.json', 'w') as followResFile:
         json.dump(followRes, followResFile)
 
 
-def load_follow_restriction(logfolder):
+def load_follow_restriction():
     """Loads the saved """
-    filename = '{}followRestriction.json'.format(logfolder)
-
-    if not os.path.isfile(filename):
-        data = {}
-        with open(filename,'w+') as followResFile:
-            json.dump(data, followResFile)
-            followResFile.close()
-
-    with open(filename) as followResFile:
+    with open('./logs/followRestriction.json') as followResFile:
         return json.load(followResFile)

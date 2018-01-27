@@ -79,14 +79,14 @@ def update_activity(action=None):
         conn.commit()
 
 
-def add_user_to_blacklist(browser, username, campaign, action, logger, logfolder):
+def add_user_to_blacklist(browser, username, campaign, action, logger):
 
-    file_exists = os.path.isfile('{}blacklist.csv'.format(logfolder))
+    file_exists = os.path.isfile('./logs/blacklist.csv')
     fieldnames = ['date', 'username', 'campaign', 'action']
     today = datetime.date.today().strftime('%m/%d/%y')
 
     try:
-        with open('{}blacklist.csv'.format(logfolder), 'a+') as blacklist:
+        with open('./logs/blacklist.csv', 'a+') as blacklist:
             writer = csv.DictWriter(blacklist, fieldnames=fieldnames)
             if not file_exists:
                 writer.writeheader()

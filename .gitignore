@@ -1,3 +1,6 @@
+*.db
+*.exe
+
 # pylint file
 googlecl-pylint.rc.txt
 assets/chromedriver
@@ -98,4 +101,3 @@ ENV/
 
 # Editors
 .idea
-.vscode

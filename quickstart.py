@@ -14,6 +14,8 @@ session = InstaPy(username=args.username, password=args.password, headless_brows
 try:
     session.login()
 
+    session.unfollow_users(amount=30, onlyInstapyFollowed=True, onlyNotFollowMe=True)
+
     # settings
     session.set_lower_follower_count(limit = 50)
     session.set_upper_follower_count(limit = 5000)

@@ -14,7 +14,7 @@ session = InstaPy(username=args.username, password=args.password, headless_brows
 try:
     session.login()
 
-    session.unfollow_users(amount=30, onlyInstapyFollowed=True, onlyNotFollowMe=True)
+    session.unfollow_users(amount=30, onlyNotFollowMe=True)
 
     # settings
     session.set_lower_follower_count(limit = 50)
@@ -26,12 +26,12 @@ try:
     session.set_dont_unfollow_active_users(enabled=True, posts=10)
 
     # actions
-    session.like_by_tags(['travel', 'goodlife', 'love'], amount=20, media='Photo', interact=True)	# interact=True => use interaction settings above
+    #session.like_by_tags(['travel', 'goodlife', 'love'], amount=20, media='Photo', interact=True)	# interact=True => use interaction settings above
     session.like_by_feed(amount=30, randomize=True, unfollow=True, interact=True)	# unfollow inappropriate posts
     session.like_by_locations(["24960421/porto-portugal/"], amount=10, media="Photo")
     session.follow_by_tags(['travel', 'food', 'vegan'], amount=10, media="Photo")
 
-    session.unfollow_users(amount=35, onlyInstapyFollowed=True, onlyNotFollowMe=True)
+    session.unfollow_users(amount=10, onlyNotFollowMe=True)
 
 finally:
     session.end()
